@@ -1,0 +1,12 @@
+# Xcode
+*.xcodeproj/
+xcuserdata/
+*.xcworkspace/
+DerivedData/
+build/
+
+# macOS
+.DS_Store
+
+# bkit
+.bkit/

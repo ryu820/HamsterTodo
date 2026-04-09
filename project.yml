@@ -1,0 +1,43 @@
+name: HamsterTodo
+options:
+  bundleIdPrefix: com.ryu
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+targets:
+  HamsterTodo:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+    info:
+      path: Info.plist
+    settings:
+      base:
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.ryu.HamsterTodo
+        INFOPLIST_KEY_LSUIElement: true
+    entitlements:
+      path: HamsterTodo.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-only: true
+        com.apple.security.files.bookmarks.app-scope: true
+  HamsterTodoTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: HamsterTodo
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/HamsterTodo.app/Contents/MacOS/HamsterTodo"
