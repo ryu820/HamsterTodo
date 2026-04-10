@@ -4,7 +4,7 @@ import os
 enum NotificationManager {
     private static let logger = Logger(subsystem: "com.ryu.HamsterTodo", category: "NotificationManager")
 
-    static func requestPermissionAndSchedule(todosPath: String?) {
+    static func requestPermissionAndSchedule(incompleteTodoCount: Int) {
         UNUserNotificationCenter.current().requestAuthorization(
             options: [.alert, .sound]
         ) { granted, error in
@@ -18,28 +18,21 @@ enum NotificationManager {
                 return
             }
 
-            scheduleDailyReminder(todosPath: todosPath)
+            scheduleDailyReminder(incompleteTodoCount: incompleteTodoCount)
         }
     }
 
-    private static func scheduleDailyReminder(todosPath: String?) {
+    private static func scheduleDailyReminder(incompleteTodoCount count: Int) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(
-            withIdentifiers: ["hamster-daily-reminder"]
+            withIdentifiers: [Strings.Notification.identifier]
         )
-
-        var count = 0
-        if let path = todosPath {
-            count = DailyNoteParser.loadTodos(from: path)
-                .filter { !$0.isCompleted }
-                .count
-        }
 
         let content = UNMutableNotificationContent()
         content.title = Greetings.random()
         content.body = count > 0
-            ? "\(count)개의 할 일이 기다리고 있어요"
-            : "오늘은 할 일이 없어요~ 푹 쉬세요 🐹💤"
+            ? Strings.Notification.bodyWithCount(count)
+            : Strings.Notification.bodyEmpty
         content.sound = .default
 
         var dateComponents = DateComponents()
@@ -52,7 +45,7 @@ enum NotificationManager {
         )
 
         let request = UNNotificationRequest(
-            identifier: "hamster-daily-reminder",
+            identifier: Strings.Notification.identifier,
             content: content,
             trigger: trigger
         )
