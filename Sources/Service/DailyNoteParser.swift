@@ -15,7 +15,7 @@ enum DailyNoteParser {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
 
             if trimmed.hasPrefix("## ") {
-                if trimmed == "## 내일 할 일" {
+                if trimmed == Strings.Parser.todoSectionHeading {
                     inTodoSection = true
                     continue
                 } else if inTodoSection {
