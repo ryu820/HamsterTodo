@@ -5,14 +5,20 @@ import os
 @main
 struct HamsterTodoApp: App {
     @StateObject private var iconAnimator = HamsterIconAnimator()
-    @StateObject private var vaultAccess = VaultAccessManager.shared
+    @StateObject private var viewModel = TodoViewModel()
 
     private static let logger = Logger(subsystem: "com.ryu.HamsterTodo", category: "App")
 
     init() {
-        NotificationManager.requestPermissionAndSchedule(
-            todosPath: VaultAccessManager.shared.vaultURL?.path
-        )
+        let todoCount: Int
+        if let path = VaultAccessManager.shared.vaultURL?.path {
+            todoCount = DailyNoteParser.loadTodos(from: path)
+                .filter { !$0.isCompleted }
+                .count
+        } else {
+            todoCount = 0
+        }
+        NotificationManager.requestPermissionAndSchedule(incompleteTodoCount: todoCount)
 
         do {
             try SMAppService.mainApp.register()
@@ -24,7 +30,7 @@ struct HamsterTodoApp: App {
     var body: some Scene {
         MenuBarExtra {
             PopupView()
-                .environmentObject(vaultAccess)
+                .environmentObject(viewModel)
         } label: {
             Image(nsImage: iconAnimator.currentImage)
         }

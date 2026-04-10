@@ -1,15 +1,15 @@
-import AppKit
+import Foundation
 import os
 
 @MainActor
-final class VaultAccessManager: ObservableObject {
+final class VaultAccessManager {
     static let shared = VaultAccessManager()
 
     private let logger = Logger(subsystem: "com.ryu.HamsterTodo", category: "VaultAccess")
     private static let bookmarkKey = "vaultBookmarkData"
 
-    @Published var vaultURL: URL?
-    @Published var isConfigured = false
+    private(set) var vaultURL: URL?
+    var isConfigured: Bool { vaultURL != nil }
 
     private init() {
         loadBookmark()
@@ -39,22 +39,12 @@ final class VaultAccessManager: ObservableObject {
             }
 
             vaultURL = url
-            isConfigured = true
         } catch {
             logger.error("Failed to resolve bookmark: \(error.localizedDescription)")
         }
     }
 
-    func selectVault() {
-        let panel = NSOpenPanel()
-        panel.title = "Obsidian 일일노트 폴더 선택"
-        panel.message = "할 일을 가져올 일일노트 폴더를 선택하세요"
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-
+    func saveAndAccess(url: URL) {
         saveBookmark(for: url)
 
         guard url.startAccessingSecurityScopedResource() else {
@@ -63,7 +53,6 @@ final class VaultAccessManager: ObservableObject {
         }
 
         vaultURL = url
-        isConfigured = true
     }
 
     private func saveBookmark(for url: URL) {
